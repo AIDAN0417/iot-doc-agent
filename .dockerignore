@@ -1,0 +1,9 @@
+data
+.git
+.venv
+.env*
+__pycache__
+tests
+eval/report.txt
+eval/results.json
+docs/screenshots

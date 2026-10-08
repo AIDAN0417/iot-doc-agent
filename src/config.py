@@ -20,7 +20,10 @@ LOCAL_OLLAMA_HOSTS = {"localhost", "127.0.0.1", "::1", "host.docker.internal"}
 TORCH_REQUIREMENT = "torch>=2.4,<3"
 TORCH_CPU_INDEX = "https://download.pytorch.org/whl/cpu"
 TOKENIZER_MODEL = "Qwen/Qwen2.5-7B-Instruct"
+PUBLIC_TOOL_NOTE_MAX_CHARS = 160
 DATASHEET_URL = "https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf"
+POWER_MODE_ALIASES = {"ULP 深度睡眠": "deep_sleep_ulp", "深度睡眠": "deep_sleep", "深睡": "deep_sleep",
+                      "轻睡眠": "light_sleep", "浅睡眠": "light_sleep", "light-sleep": "light_sleep", "deep-sleep": "deep_sleep"}
 DOC_ROOT = "https://docs.espressif.com/projects/esp-idf/en/latest/esp32/"
 CRAWL_SECTIONS = ("api-reference/", "api-guides/")
 CRAWLER_USER_AGENT = "iot-doc-agent/1.0 (+https://github.com/AIDAN0417/iot-doc-agent)"
@@ -28,14 +31,20 @@ CHINESE_KEYWORDS = {
     "深度睡眠": ("deep-sleep", "esp_deep_sleep_start", "sleep"),
     "浅睡眠": ("light-sleep", "esp_light_sleep_start", "sleep"),
     "唤醒": ("wakeup", "sleep"), "定时器": ("timer",),
+    "所有唤醒": ("esp_sleep_disable_wakeup_source", "esp_sleep_wakeup_all"),
+    "关闭": ("disable",),
     "功耗": ("power", "consumption", "sleep"), "电流": ("current", "power"),
     "看门狗": ("watchdog", "wdt"), "任务": ("task", "freertos"),
+    "订阅": ("subscribe",), "喂狗": ("feed", "reset"), "当前": ("current",),
     "中断": ("interrupt",), "模数": ("adc",), "校准": ("calibration",),
     "蓝牙": ("bluetooth", "ble"), "无线": ("wifi", "wi-fi"),
     "闪存": ("flash",), "加密": ("encryption",), "安全启动": ("secure", "boot"),
     "串口": ("uart",), "引脚": ("gpio", "pin"), "存储": ("nvs", "storage"),
+    "键名": ("key", "names"), "最长": ("maximum", "length"),
+    "字符": ("characters",), "写入": ("write", "commit"),
 }
-QUERY_STOPWORDS = set("the and for this that with what which how why does should please when are can use using configure configuration esp32".split())
+QUERY_STOPWORDS = set("the and for this that with what which how why does should please when are can use using configure configuration esp32 will while keep documented alternative explain directly official signature its must any just from into called after before".split())
+API_SEARCH_ALIASES = {"ext0": "esp_sleep_enable_ext0_wakeup", "ext1": "esp_sleep_enable_ext1_wakeup"}
 DEPENDENCY_IMPORTS = (
     "torch", "sentence_transformers", "transformers", "faiss",
     "numpy", "streamlit", "requests", "bs4",
@@ -77,6 +86,8 @@ class Settings:
     retrieval_candidates: int = 20
     retrieval_top_k: int = 5
     keyword_boost: float = 0.12
+    api_reference_boost: float = 0.25
+    expand_retrieval_query: bool = True
     relevance_threshold: float = 0.30
     llm_temperature: float = 0.0
     llm_output_tokens: int = 800

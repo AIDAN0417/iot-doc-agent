@@ -1,0 +1,505 @@
+[
+  {
+    "id": 1,
+    "language": "zh",
+    "question": "ESP32 如何设置 5 秒后从深度睡眠唤醒？给出简短 C 调用示例。",
+    "chapter": "Sleep Modes",
+    "source": "api-reference/system/sleep_modes.html",
+    "facts": [
+      [
+        "esp_sleep_enable_timer_wakeup",
+        "esp_deep_sleep("
+      ],
+      [
+        "5000000",
+        "5 * 1000000",
+        "5ULL * 1000000"
+      ],
+      [
+        "esp_deep_sleep_start",
+        "esp_deep_sleep("
+      ]
+    ]
+  },
+  {
+    "id": 2,
+    "language": "zh",
+    "question": "ESP32 Light-sleep 与 Deep-sleep 对 CPU、RAM 状态和恢复执行有什么区别？",
+    "chapter": "Sleep Modes",
+    "source": "api-reference/system/sleep_modes.html",
+    "facts": [
+      [
+        "保留",
+        "保持",
+        "retain"
+      ],
+      [
+        "重启",
+        "复位",
+        "reset",
+        "关闭",
+        "断电"
+      ]
+    ]
+  },
+  {
+    "id": 3,
+    "language": "zh",
+    "question": "想省电但保留 ESP32 Wi-Fi 连接，应该选择直接深睡还是 Modem-sleep 配合自动 Light-sleep？",
+    "chapter": "Sleep Modes",
+    "source": "api-reference/system/sleep_modes.html",
+    "facts": [
+      [
+        "modem",
+        "Modem"
+      ],
+      [
+        "自动",
+        "automatic"
+      ],
+      [
+        "连接",
+        "connection"
+      ]
+    ]
+  },
+  {
+    "id": 4,
+    "language": "zh",
+    "question": "ESP32 唤醒后用哪个 API 查询唤醒原因？",
+    "chapter": "Sleep Modes",
+    "source": "api-reference/system/sleep_modes.html",
+    "facts": [
+      [
+        "esp_sleep_get_wakeup_cause"
+      ]
+    ]
+  },
+  {
+    "id": 5,
+    "language": "zh",
+    "question": "ESP32 深睡时，使用 RTC_DATA_ATTR 放置的变量需要保留哪个内存电源域？",
+    "chapter": "Sleep Modes",
+    "source": "api-reference/system/sleep_modes.html",
+    "facts": [
+      [
+        "RTC SLOW",
+        "RTC_SLOW",
+        "RTC 慢",
+        "RTC fast",
+        "RTC 快速",
+        "RTC_FAST"
+      ]
+    ],
+    "sources": [
+      "api-reference/system/sleep_modes.html",
+      "api-guides/deep-sleep-stub.html",
+      "api-guides/memory-types.html"
+    ]
+  },
+  {
+    "id": 6,
+    "language": "en",
+    "question": "What unit does esp_sleep_enable_timer_wakeup(time_in_us) use?",
+    "chapter": "Sleep Modes",
+    "source": "api-reference/system/sleep_modes.html",
+    "facts": [
+      [
+        "microsecond"
+      ]
+    ]
+  },
+  {
+    "id": 7,
+    "language": "en",
+    "question": "Can ESP32 ext0 wakeup use any GPIO, or must it use an RTC GPIO?",
+    "chapter": "Sleep Modes",
+    "source": "api-reference/system/sleep_modes.html",
+    "facts": [
+      [
+        "must be an RTC",
+        "only RTC",
+        "RTC GPIOs only",
+        "RTC-capable GPIO",
+        "cannot use arbitrary",
+        "not any GPIO",
+        "must use an RTC",
+        "restricted to RTC",
+        "only use RTC",
+        "only works with RTC",
+        "must use RTC"
+      ]
+    ]
+  },
+  {
+    "id": 8,
+    "language": "en",
+    "question": "How can I disable all previously enabled ESP32 sleep wakeup sources?",
+    "chapter": "Sleep Modes",
+    "source": "api-reference/system/sleep_modes.html",
+    "facts": [
+      [
+        "esp_sleep_disable_wakeup_source"
+      ],
+      [
+        "ESP_SLEEP_WAKEUP_ALL"
+      ]
+    ]
+  },
+  {
+    "id": 9,
+    "language": "en",
+    "question": "Which documented call isolates GPIO12 to reduce leakage during Deep-sleep on ESP32-WROVER?",
+    "chapter": "Sleep Modes",
+    "source": "api-reference/system/sleep_modes.html",
+    "facts": [
+      [
+        "rtc_gpio_isolate"
+      ],
+      [
+        "12"
+      ]
+    ]
+  },
+  {
+    "id": 10,
+    "language": "en",
+    "question": "Will ESP32 keep a Wi-Fi connection while directly entering Deep-sleep? Explain the documented alternative.",
+    "chapter": "Sleep Modes",
+    "source": "api-reference/system/sleep_modes.html",
+    "facts": [
+      [
+        "not",
+        "disconnect",
+        "No,"
+      ],
+      [
+        "modem",
+        "Modem"
+      ],
+      [
+        "automatic"
+      ]
+    ]
+  },
+  {
+    "id": 11,
+    "language": "zh",
+    "question": "ESP32 GPIO34–39 可以输出信号和启用内部上拉/下拉吗？",
+    "chapter": "GPIO & RTC GPIO",
+    "source": "api-reference/peripherals/gpio.html",
+    "facts": [
+      [
+        "输入",
+        "input"
+      ],
+      [
+        "不支持",
+        "没有",
+        "不能",
+        "不可",
+        "无法"
+      ]
+    ]
+  },
+  {
+    "id": 12,
+    "language": "zh",
+    "question": "ESP32 GPIO6–11 通常连接什么？为什么不应随便作为普通 GPIO 使用？",
+    "chapter": "GPIO & RTC GPIO",
+    "source": "api-reference/peripherals/gpio.html",
+    "facts": [
+      [
+        "flash",
+        "Flash",
+        "闪存"
+      ]
+    ]
+  },
+  {
+    "id": 13,
+    "language": "zh",
+    "question": "ESP32 的 gpio_config() 会不会覆盖引脚已有配置？",
+    "chapter": "GPIO & RTC GPIO",
+    "source": "api-reference/peripherals/gpio.html",
+    "facts": [
+      [
+        "覆盖",
+        "overwrite"
+      ]
+    ]
+  },
+  {
+    "id": 14,
+    "language": "zh",
+    "question": "ESP32 启用 Wi-Fi 后，ADC2 使用有什么冲突或仲裁限制？",
+    "chapter": "GPIO & RTC GPIO / ADC Oneshot",
+    "sources": [
+      "api-reference/peripherals/gpio.html",
+      "api-reference/peripherals/adc/adc_oneshot.html"
+    ],
+    "facts": [
+      [
+        "ADC2",
+        "adc2"
+      ],
+      [
+        "Wi-Fi",
+        "wifi",
+        "WiFi"
+      ],
+      [
+        "共享",
+        "冲突",
+        "仲裁",
+        "不能",
+        "失败",
+        "超时"
+      ]
+    ]
+  },
+  {
+    "id": 15,
+    "language": "zh",
+    "question": "ESP32 NVS 键名最长可以有多少个字符？",
+    "chapter": "Non-Volatile Storage Library",
+    "source": "api-reference/storage/nvs_flash.html",
+    "facts": [
+      [
+        "15"
+      ]
+    ]
+  },
+  {
+    "id": 16,
+    "language": "zh",
+    "question": "调用 nvs_set_i32() 后，需要哪个 API 确保改动写入闪存？",
+    "chapter": "Non-Volatile Storage Library",
+    "source": "api-reference/storage/nvs_flash.html",
+    "facts": [
+      [
+        "nvs_commit"
+      ]
+    ]
+  },
+  {
+    "id": 17,
+    "language": "zh",
+    "question": "ESP32 TWDT 如何订阅当前任务并定期喂狗？写出两个主要 API 名。",
+    "chapter": "Watchdogs",
+    "source": "api-reference/system/wdts.html",
+    "facts": [
+      [
+        "esp_task_wdt_add"
+      ],
+      [
+        "esp_task_wdt_reset"
+      ]
+    ]
+  },
+  {
+    "id": 18,
+    "language": "zh",
+    "question": "ESP32 Interrupt Watchdog 与 Task Watchdog 分别监控什么问题？",
+    "chapter": "Watchdogs",
+    "source": "api-reference/system/wdts.html",
+    "facts": [
+      [
+        "中断",
+        "interrupt"
+      ],
+      [
+        "任务",
+        "task"
+      ],
+      [
+        "让出",
+        "yield",
+        "阻塞"
+      ]
+    ]
+  },
+  {
+    "id": 19,
+    "language": "zh",
+    "question": "估算 ESP32 deep_sleep 模式下 24 小时消耗多少 mAh？说明工具所用芯片典型值及局限。",
+    "chapter": "ESP32 Datasheet Table 4-2",
+    "source_url": "https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf",
+    "facts": [
+      [
+        "0.24"
+      ],
+      [
+        "0.01",
+        "10 µA",
+        "10 μA",
+        "10uA"
+      ],
+      [
+        "芯片",
+        "chip"
+      ]
+    ],
+    "tool": "estimate_power"
+  },
+  {
+    "id": 20,
+    "language": "zh",
+    "question": "ESP32 的 esp_quantum_sleep_enable() 参数签名是什么？请给官方定义。",
+    "chapter": "Expected refusal: undocumented API",
+    "source": "api-reference/system/sleep_modes.html",
+    "facts": [],
+    "expect_refusal": true
+  },
+  {
+    "id": 21,
+    "language": "en",
+    "question": "Which function installs ESP32's GPIO ISR service, and which function adds a per-pin handler?",
+    "chapter": "GPIO & RTC GPIO",
+    "source": "api-reference/peripherals/gpio.html",
+    "facts": [
+      [
+        "gpio_install_isr_service"
+      ],
+      [
+        "gpio_isr_handler_add"
+      ]
+    ]
+  },
+  {
+    "id": 22,
+    "language": "en",
+    "question": "Which header provides ESP-IDF's ADC oneshot driver?",
+    "chapter": "ADC Oneshot Mode Driver",
+    "source": "api-reference/peripherals/adc/adc_oneshot.html",
+    "facts": [
+      [
+        "esp_adc/adc_oneshot.h"
+      ]
+    ]
+  },
+  {
+    "id": 23,
+    "language": "en",
+    "question": "Which API reads a raw conversion from the ESP32 ADC oneshot driver?",
+    "chapter": "ADC Oneshot Mode Driver",
+    "source": "api-reference/peripherals/adc/adc_oneshot.html",
+    "facts": [
+      [
+        "adc_oneshot_read"
+      ]
+    ]
+  },
+  {
+    "id": 24,
+    "language": "en",
+    "question": "Is adc_oneshot_read() safe to call in an ISR?",
+    "chapter": "ADC Oneshot Mode Driver",
+    "source": "api-reference/peripherals/adc/adc_oneshot.html",
+    "facts": [
+      [
+        "not",
+        "No",
+        "avoid"
+      ],
+      [
+        "ISR",
+        "interrupt"
+      ]
+    ]
+  },
+  {
+    "id": 25,
+    "language": "en",
+    "question": "Does ESP32 NVS store key-value pairs in flash, and is it suited to many small values?",
+    "chapter": "Non-Volatile Storage Library",
+    "source": "api-reference/storage/nvs_flash.html",
+    "facts": [
+      [
+        "key-value",
+        "key–value",
+        "key value"
+      ],
+      [
+        "flash"
+      ],
+      [
+        "small"
+      ]
+    ]
+  },
+  {
+    "id": 26,
+    "language": "en",
+    "question": "Which NVS initialization call initializes the default nvs partition?",
+    "chapter": "Non-Volatile Storage Library",
+    "source": "api-reference/storage/nvs_flash.html",
+    "facts": [
+      [
+        "nvs_flash_init"
+      ]
+    ]
+  },
+  {
+    "id": 27,
+    "language": "en",
+    "question": "Which task does ESP32's Task Watchdog watch by default, and what can a busy loop prevent?",
+    "chapter": "Watchdogs",
+    "source": "api-reference/system/wdts.html",
+    "facts": [
+      [
+        "Idle",
+        "idle"
+      ],
+      [
+        "yield",
+        "feed",
+        "reset"
+      ]
+    ]
+  },
+  {
+    "id": 28,
+    "language": "en",
+    "question": "What is the ESP32 API for unsubscribing a task from the Task Watchdog?",
+    "chapter": "Watchdogs",
+    "source": "api-reference/system/wdts.html",
+    "facts": [
+      [
+        "esp_task_wdt_delete"
+      ]
+    ]
+  },
+  {
+    "id": 29,
+    "language": "en",
+    "question": "Estimate chip charge for light_sleep over 10 hours in mAh; state the typical-current assumption and board-level limitation.",
+    "chapter": "ESP32 Datasheet Table 4-2",
+    "source_url": "https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf",
+    "facts": [
+      [
+        "8 mAh",
+        "8.0 mAh",
+        "8.00 mAh"
+      ],
+      [
+        "0.8"
+      ],
+      [
+        "board",
+        "peripheral",
+        "regulator"
+      ]
+    ],
+    "tool": "estimate_power"
+  },
+  {
+    "id": 30,
+    "language": "en",
+    "question": "Give the official ESP32 signature of esp_quantum_sleep_enable().",
+    "chapter": "Expected refusal: undocumented API",
+    "source": "api-reference/system/sleep_modes.html",
+    "facts": [],
+    "expect_refusal": true
+  }
+]

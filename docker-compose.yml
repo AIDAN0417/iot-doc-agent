@@ -1,0 +1,22 @@
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8501:8501"
+    environment:
+      IOT_OLLAMA_URL: "http://host.docker.internal:11434"
+      IOT_CHAT_MODEL: "${IOT_CHAT_MODEL:-qwen2.5:7b-instruct}"
+      IOT_EMBED_MODEL: "${IOT_EMBED_MODEL:-BAAI/bge-m3}"
+      IOT_DATA_DIR: "/app/data"
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    volumes:
+      - "./data:/app/data:ro"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped

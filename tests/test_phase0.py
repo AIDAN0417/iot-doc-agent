@@ -172,6 +172,7 @@ class SetupFlowTests(unittest.TestCase):
                 deps = stack.enter_context(patch("src.bootstrap.check_dependencies"))
                 command = stack.enter_context(patch("src.bootstrap.run_command"))
                 embedding = stack.enter_context(patch("src.bootstrap.prepare_embedding"))
+                stack.enter_context(patch("src.bootstrap.prepare_tokenizer"))
                 bootstrap.setup(Settings(), check_only=check_only)
                 venv.assert_called_once_with(Settings(), check_only=check_only)
                 deps.assert_called_once()

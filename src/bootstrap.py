@@ -19,7 +19,7 @@ from urllib.request import ProxyHandler, build_opener
 from src.config import (
     CHAT_MODELS, CHAT_SIZE_GB, DEPENDENCY_IMPORTS, EMBED_SIZE_GB, GIB,
     MIN_MEMORY_GIB, MIN_PYTHON, RECOMMENDED_MEMORY_GIB, TORCH_CPU_INDEX,
-    TORCH_REQUIREMENT, Settings, load_settings,
+    TORCH_REQUIREMENT, TOKENIZER_MODEL, Settings, load_settings,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -262,11 +262,35 @@ def setup(settings: Settings, *, check_only: bool = False) -> None:
     if installed is None:
         raise SetupError(f"本地未找到 {model}；请先运行 ollama pull {model}")
     prepare_embedding(python, settings, check_only=check_only)
+    prepare_tokenizer(python, settings, check_only=check_only)
     LOGGER.info("总结：Python / pip / 内存 / 依赖 / Ollama / 对话模型 / embedding 均 OK")
     LOGGER.info("选用模型：%s；num_ctx=%s；keep_alive=%s", model, settings.num_ctx, settings.keep_alive)
     LOGGER.info("Ollama 报告的模型磁盘大小：%.2f GB", float(installed.get("size", 0)) / 1_000_000_000)
     LOGGER.info("embedding 缓存：%s；虚拟环境：%s", settings.embedding_cache, settings.venv_dir)
-    LOGGER.info("Phase 0 环境准备完成；后续 Phase 需要用户确认后执行")
+    LOGGER.info("Phase 0 环境准备完成")
+
+
+def prepare_tokenizer(python: Path, settings: Settings, *, check_only: bool) -> None:
+    """Cache Qwen's tokenizer and verify offline loading for strict context limits."""
+    code = (
+        "from transformers import AutoTokenizer; "
+        f"AutoTokenizer.from_pretrained({TOKENIZER_MODEL!r}, "
+        f"cache_dir={str(settings.tokenizer_cache)!r}, token=False, "
+        "trust_remote_code=False, local_files_only=LOCAL_ONLY)"
+    )
+    env = os.environ.copy()
+    env["HF_HUB_DISABLE_TELEMETRY"] = "1"
+    if not check_only:
+        settings.tokenizer_cache.mkdir(parents=True, exist_ok=True)
+        run_command([str(python), "-c", code.replace("LOCAL_ONLY", "False")],
+                    timeout=settings.model_timeout_s, env=env,
+                    repair="分词器下载失败；请检查网络并重跑初始化。")
+    env.update({"HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1"})
+    # 预期：离线加载 Qwen tokenizer 成功；仅下载分词文件，不下载 Qwen HF 权重。
+    run_command([str(python), "-c", code.replace("LOCAL_ONLY", "True")],
+                timeout=settings.model_timeout_s, env=env,
+                repair="本地 Qwen 分词器缓存不完整；请联网重跑初始化。")
+    LOGGER.info("Qwen 分词器离线加载：OK")
 
 
 def main(argv: list[str] | None = None) -> int:

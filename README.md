@@ -2,7 +2,7 @@
 
 面向 ESP32 开发者的本地 RAG 问答 Agent；按 `AGENTS.md` 分阶段构建，模型推理使用本机 Ollama，零云端推理 API 费用。
 
-当前交付：**Phase 0 环境脚本**。数据采集、检索、ReAct、聊天界面、Docker 打包均待后续阶段确认后实现。
+已完成实机环境初始化与 Phase 1 数据管道。完整索引与后续模型评测正在进行；最终使用说明和实测结果将在 Phase 4 更新。
 
 ## 硬件要求
 
@@ -76,13 +76,18 @@ bash setup.sh --check
 
 ## Phase 0 验证
 
-2026-10-08 本机检查：Windows、Python 3.11.9、pip 24.0、物理内存约 31.43 GiB，推荐 7B。磁盘可用约 190.87 GiB。
+2026-10-08 本机检查：Windows、Python 3.11.9、pip 24.0、物理内存约 31.43 GiB，选用 7B；RTX 5060 Laptop GPU 8 GiB。
 
-- 自动化测试：15/15 通过，覆盖内存/磁盘门槛、模型与地址约束、真实回环 HTTP 健康检查、失败提示及离线检查无下载。完整安装成功分支使用模拟依赖/模型，不代表真实模型已安装。
-- 原生入口实测：`python -m src.bootstrap --check` 正确识别内存/Python/pip，在缺少 Ollama 时返回 1 并显示官方下载链接及重跑建议。
-- 依赖实测：已安装到 `.venv`，`pip check` 通过；所有声明依赖导入通过，SentenceTransformer 的离线/缓存参数签名检查通过，FAISS CPU 内积索引小样本检索通过。Torch 为 `2.14.1+cpu`，未下载 embedding 权重。
-- Bash 入口实测：当前机器缺少可用 Bash，未实际执行。
-- 完整安装/模型下载/embedding 离线加载：待安装并启动 Ollama 后实测。
+- `bash setup.sh` 与 `bash setup.sh --check` 均已真实执行成功；原生 Ollama 0.40.1、Qwen 7B 4.68 GB。
+- `.venv` 依赖安装、`pip check`、FAISS 小样本以及 bge-m3 / Qwen tokenizer 离线加载均通过；Torch 为 `2.14.1+cpu`。
+- 阶段 0/1 的 21 项单元测试通过。后续模块测试和生成性能另行记录。
+- Windows 无 symlink 权限时 Hugging Face 缓存可能保存两种权重文件，本机 embedding 缓存实测约 4.25 GiB；15 GiB 只是初始化门槛，完整运行建议至少预留 25 GiB（Docker 镜像另计）。
+
+## Phase 1 验证
+
+- 限速 1 req/s，遵守官方 robots，抓取清单 281 页、失败 0 页；迁移页只记录目标，正文来源使用真实新路径。
+- 清洗得到 1,630 个章节，生成 5,912 块，长度 200–393 Qwen tokens，窗口重叠 50 源 tokens。
+- 固定随机种子抽查 5 块：章节名与正文对应，5 个原始 HTML 锚点全部存在，详见 [验证记录](docs/phase1-validation.md)。
 
 测试仅使用 Python 标准库，无需先下载模型：
 

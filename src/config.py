@@ -19,6 +19,23 @@ EMBED_SIZE_GB = {EMBED_MODELS[0]: 2.3, EMBED_MODELS[1]: 0.1}
 LOCAL_OLLAMA_HOSTS = {"localhost", "127.0.0.1", "::1", "host.docker.internal"}
 TORCH_REQUIREMENT = "torch>=2.4,<3"
 TORCH_CPU_INDEX = "https://download.pytorch.org/whl/cpu"
+TOKENIZER_MODEL = "Qwen/Qwen2.5-7B-Instruct"
+DATASHEET_URL = "https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf"
+DOC_ROOT = "https://docs.espressif.com/projects/esp-idf/en/latest/esp32/"
+CRAWL_SECTIONS = ("api-reference/", "api-guides/")
+CRAWLER_USER_AGENT = "iot-doc-agent/1.0 (+https://github.com/AIDAN0417/iot-doc-agent)"
+CHINESE_KEYWORDS = {
+    "深度睡眠": ("deep-sleep", "esp_deep_sleep_start", "sleep"),
+    "浅睡眠": ("light-sleep", "esp_light_sleep_start", "sleep"),
+    "唤醒": ("wakeup", "sleep"), "定时器": ("timer",),
+    "功耗": ("power", "consumption", "sleep"), "电流": ("current", "power"),
+    "看门狗": ("watchdog", "wdt"), "任务": ("task", "freertos"),
+    "中断": ("interrupt",), "模数": ("adc",), "校准": ("calibration",),
+    "蓝牙": ("bluetooth", "ble"), "无线": ("wifi", "wi-fi"),
+    "闪存": ("flash",), "加密": ("encryption",), "安全启动": ("secure", "boot"),
+    "串口": ("uart",), "引脚": ("gpio", "pin"), "存储": ("nvs", "storage"),
+}
+QUERY_STOPWORDS = set("the and for this that with what which how why does should please when are can use using configure configuration esp32".split())
 DEPENDENCY_IMPORTS = (
     "torch", "sentence_transformers", "transformers", "faiss",
     "numpy", "streamlit", "requests", "bs4",
@@ -45,6 +62,40 @@ class Settings:
     minimum_free_disk_gib: int = 15
     estimated_environment_gb: int = 4
     embed_device: str = "cpu"
+    docs_root: str = DOC_ROOT
+    crawl_interval_s: float = 1.0
+    crawl_retries: int = 3
+    crawl_timeout_s: int = 30
+    crawl_max_pages: int = 0
+    chunk_min_tokens: int = 200
+    chunk_max_tokens: int = 400
+    chunk_overlap_tokens: int = 50
+    chunk_fence_reserve: int = 12
+    embedding_batch_size: int = 32
+    embedding_max_tokens: int = 768
+    embedding_threads: int = 8
+    retrieval_candidates: int = 20
+    retrieval_top_k: int = 5
+    keyword_boost: float = 0.12
+    relevance_threshold: float = 0.30
+    llm_temperature: float = 0.0
+    llm_output_tokens: int = 800
+    system_prompt_tokens: int = 800
+    context_reserve_tokens: int = 256
+    history_turns: int = 3
+    history_turn_tokens: int = 500
+    max_tool_calls: int = 4
+    json_repair_attempts: int = 1
+    random_seed: int = 42
+    eval_accuracy_target: float = 0.8
+    ui_port: int = 8501
+    question_max_tokens: int = 300
+    history_question_tokens: int = 150
+    llm_retry_backoff_s: float = 1.0
+    followup_max_tokens: int = 48
+    tool_result_max_tokens: int = 1600
+    answer_refusal_zh: str = "文档中没有找到相关内容"
+    answer_refusal_en: str = "I could not find this information in the retrieved documentation."
 
     @property
     def venv_dir(self) -> Path:
@@ -55,6 +106,41 @@ class Settings:
     def embedding_cache(self) -> Path:
         """Return the ignored embedding model cache directory."""
         return self.data_dir / "models" / "embedding"
+
+    @property
+    def tokenizer_cache(self) -> Path:
+        """Return the local cache for exact Qwen context-budget token counting."""
+        return self.data_dir / "models" / "tokenizer"
+
+    @property
+    def crawl_manifest_path(self) -> Path:
+        """Return the resumable crawl manifest path."""
+        return self.data_dir / "crawl_manifest.json"
+
+    @property
+    def sections_path(self) -> Path:
+        """Return the cleaned section corpus path."""
+        return self.data_dir / "clean" / "sections.json"
+
+    @property
+    def chunks_path(self) -> Path:
+        """Return the source-linked token chunk corpus path."""
+        return self.data_dir / "chunks.json"
+
+    @property
+    def index_dir(self) -> Path:
+        """Return the versioned FAISS index directory."""
+        return self.data_dir / "index"
+
+    @property
+    def questions_path(self) -> Path:
+        """Return the thirty-question evaluation fixture path."""
+        return self.project_root / "eval" / "questions.json"
+
+    @property
+    def evaluation_report_path(self) -> Path:
+        """Return the generated local evaluation report path."""
+        return self.project_root / "eval" / "report.txt"
 
 
 def load_settings() -> Settings:
@@ -84,7 +170,14 @@ def load_settings() -> Settings:
         data_dir=data.resolve(), chat_model=model, embed_model=embedding,
         ollama_url=url, num_ctx=int(os.environ.get("IOT_NUM_CTX", "8192")),
         keep_alive=os.environ.get("IOT_KEEP_ALIVE", "30m"),
+        crawl_max_pages=int(os.environ.get("IOT_CRAWL_MAX_PAGES", "0")),
+        retrieval_top_k=int(os.environ.get("IOT_TOP_K", "5")),
+        embedding_threads=int(os.environ.get("IOT_EMBED_THREADS", "8")),
     )
     if settings.num_ctx <= 0 or not settings.keep_alive:
         raise ValueError("IOT_NUM_CTX 必须为正整数，IOT_KEEP_ALIVE 不得为空")
+    if not 1 <= settings.retrieval_top_k <= 5 or settings.crawl_max_pages < 0:
+        raise ValueError("IOT_TOP_K 需在 1–5 之间，IOT_CRAWL_MAX_PAGES 不得为负数")
+    if settings.embedding_threads < 1:
+        raise ValueError("IOT_EMBED_THREADS 必须为正整数")
     return settings

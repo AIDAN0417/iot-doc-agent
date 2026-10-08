@@ -7,13 +7,20 @@ cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 # PYTHON 可包含空格，例如 PYTHON='/c/Program Files/Python311/python.exe'。
 if [[ -n "${PYTHON:-}" ]]; then
     python_cmd="$PYTHON"
-elif command -v python3 >/dev/null 2>&1; then
-    python_cmd=python3
-elif command -v python >/dev/null 2>&1; then
-    python_cmd=python
 else
-    printf '%s\n' '错误：找不到 Python。请安装 Python 3.11+ 并将其加入 PATH。' >&2
-    exit 1
+    python_cmd=''
+    for candidate in python3 python; do
+        # Windows 的 python3 可能只是应用商店占位符；验证后才选用。
+        if command -v "$candidate" >/dev/null 2>&1 && \
+           "$candidate" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)' >/dev/null 2>&1; then
+            python_cmd="$candidate"
+            break
+        fi
+    done
+    if [[ -z "$python_cmd" ]]; then
+        printf '%s\n' '错误：找不到可用的 Python 3.11+。请安装并加入 PATH，或用 PYTHON 指定路径。' >&2
+        exit 1
+    fi
 fi
 
 # 共享检查的预期输出（实现见 src/bootstrap.py，每一步均含输出注释）：

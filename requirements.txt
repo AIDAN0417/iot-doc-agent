@@ -1,0 +1,10 @@
+# Keep direct dependencies within a tested major series. CPU Torch is installed
+# from the official CPU wheel index by the setup entry point before this file.
+torch>=2.4,<3
+sentence-transformers>=5.2,<6
+transformers>=4.41,<5
+faiss-cpu>=1.8,<2
+numpy>=1.26,<3
+streamlit>=1.40,<2
+requests>=2.32,<3
+beautifulsoup4>=4.12,<5
